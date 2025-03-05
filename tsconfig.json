@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "ES2022" /* Target latest ECMAScript version for Node.js 18+ */,
+    "lib": ["ES2022"] /* Exclude "DOM" for a Node.js environment */,
+    "module": "commonjs" /* Node.js CommonJS module resolution */,
+    "moduleResolution": "node" /* Supports CommonJS and ESM interop */,
+    "allowSyntheticDefaultImports": true /* Allows synthetic imports */,
+    "esModuleInterop": true /* Better compatibility with CommonJS */,
+    "resolveJsonModule": true /* Allows importing JSON modules */,
+    "useDefineForClassFields": true /* Consistent class field declarations */,
+
+    /* Emit Options */
+    "outDir": "./dist" /* Output directory for compiled files */,
+    "sourceMap": true /* Enable sourcemaps for debugging */,
+    "removeComments": true /* Remove comments in emitted files */,
+    "importHelpers": true /* Reduce output size by using tslib */,
+
+    /* Interop Constraints */
+    "isolatedModules": true /* Enforces independent file transpilation */,
+    "forceConsistentCasingInFileNames": true /* Enforce consistent casing on imports */,
+
+    /* Type Checking */
+    "strict": true /* Enable all strict type-checking options */,
+    "noImplicitAny": true /* Error on implicit 'any' types */,
+    "strictNullChecks": true /* Explicit null checks */,
+    "strictFunctionTypes": true /* Strict function parameter and return type checks */,
+    "strictPropertyInitialization": true /* Ensure class properties are initialized */,
+    "strictBindCallApply": true /* Enforce strict rules for bind, call, and apply */,
+
+    /* Paths */
+    "baseUrl": "." /* Base path for resolving non-relative imports */,
+    // "paths": {},                                   /* Add custom paths if needed */
+
+    /* Module Detection */
+    "moduleDetection": "force" /* Better handling of ESM/CommonJS */,
+
+    /* JavaScript Interop */
+    "allowJs": true /* Enable JavaScript file imports */,
+    "checkJs": true /* Type-check JavaScript files if needed */,
+
+    /* Project Options */
+    "noEmitOnError": true /* Do not emit files if there's an error */
+  },
+  "include": ["src/**/*"] /* Include all TypeScript files in src */,
+  "exclude": [
+    "node_modules",
+    "dist"
+  ] /* Exclude node_modules and dist folders */
+}
