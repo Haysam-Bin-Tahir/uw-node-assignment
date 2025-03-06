@@ -1,5 +1,7 @@
 # Yapily Integration Project Requirements
 
+> **Note**: This document is a development resource used during the implementation phase of the project. It outlines the original requirements and specifications that guided the development process.
+
 ## 1. Overview & Estimated Time
 This exercise is designed to showcase familiarity with Node.js, external API integrations, and basic DevOps, without being overwhelming.
 
