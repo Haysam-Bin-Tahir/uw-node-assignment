@@ -9,8 +9,6 @@ dist/
 *.tsbuildinfo
 
 # Environment variables
-.env
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -21,7 +19,6 @@ logs/
 npm-debug.log*
 
 # Editor directories and files
-.vscode/
 .idea/
 .cursorrules
 
@@ -43,3 +40,8 @@ temp/
 *.tgz
 *.gz
 *.zip
+config.bat
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore
