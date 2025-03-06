@@ -19,16 +19,13 @@ export const authenticateToken = async (
   next: NextFunction
 ) => {
   try {
-    console.log("Auth headers:", req.headers.authorization);
     let token = req.headers.authorization?.split(' ')[1];
     
     if (!token) {
       return res.status(401).json({ message: "Access token not found" });
     }
 
-    console.log("Token to verify:", token);
     const decoded = AuthService.verifyAccessToken(token);
-    console.log("Decoded token:", decoded);
 
     const user = await User.findById(decoded.userId);
     if (!user) {

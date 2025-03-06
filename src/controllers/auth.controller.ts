@@ -25,8 +25,6 @@ export default class AuthController {
     try {
       const { email, password } = req.body;
 
-      console.log("got here")
-
       // Validate credentials
       const validationError = ValidationService.validateCredentials(email, password);
       if (validationError) {
@@ -69,7 +67,6 @@ export default class AuthController {
       }
 
       // Find user
-      console.log("Finding user");
       const user = await User.findOne({ email });
       if (!user) {
         return res.status(401).json({ 
@@ -78,10 +75,7 @@ export default class AuthController {
       }
 
       // Check password
-      console.log("Password from request:", password);
-      console.log("Stored hashed password:", user.password);
       const isValidPassword = await user.comparePassword(password);
-      console.log("Password comparison result:", isValidPassword);
       if (!isValidPassword) {
         return res.status(401).json({ 
           message: "Invalid email or password" 

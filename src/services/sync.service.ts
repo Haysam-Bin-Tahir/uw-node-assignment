@@ -22,8 +22,6 @@ export const syncTransactions = async (
     syncStatus.status = 'processing';
     await syncStatus.save();
 
-    console.log(userId, 'user id for syncing');
-
     const response = await YapilyService.getTransactions(accountId, consentToken);
     
     if (response?.data) {

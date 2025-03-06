@@ -15,7 +15,6 @@ export default class AuthService {
   private static REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60; // 7 days in seconds
 
   static generateTokens(userId: string): Tokens {
-    console.log("Generating tokens for userId:", userId);
     const options: SignOptions = { expiresIn: this.ACCESS_TOKEN_EXPIRY };
     const refreshOptions: SignOptions = { expiresIn: this.REFRESH_TOKEN_EXPIRY };
 

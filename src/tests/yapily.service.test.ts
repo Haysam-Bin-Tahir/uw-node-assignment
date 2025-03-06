@@ -44,7 +44,7 @@ describe('YapilyService', () => {
       
       mockedAxios.post.mockResolvedValueOnce({ data: mockConsent });
       
-      const result = await YapilyService.createConsent('test-bank');
+      const result = await YapilyService.createConsent('test-bank', 'test-user-id');
       expect(result).toEqual(mockConsent);
     });
   });
