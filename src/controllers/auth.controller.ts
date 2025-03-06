@@ -23,14 +23,51 @@ const formatUserResponse = (user: IUser) => {
 
 export default class AuthController {
   /**
-   * Handles user registration process.
-   * Creates a new user account with email and password authentication.
-   * Sets up authentication tokens and cookies upon successful registration.
-   * 
-   * @param {Request} req - Express request object with SignupInput body
-   * @param {Response} res - Express response object
-   * @returns {Promise<void>} JSON response with user data and tokens
-   * @throws {Error} If user creation fails or email is already registered
+   * @swagger
+   * /api/auth/register:
+   *   post:
+   *     summary: Register a new user
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - email
+   *               - password
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 format: email
+   *               password:
+   *                 type: string
+   *                 minLength: 6
+   *     responses:
+   *       201:
+   *         description: User registered successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                 user:
+   *                   type: object
+   *                   properties:
+   *                     userId:
+   *                       type: string
+   *                     email:
+   *                       type: string
+   *                     createdAt:
+   *                       type: string
+   *                       format: date-time
+   *       400:
+   *         description: Invalid input
+   *       409:
+   *         description: Email already exists
    */
   async register(req: Request, res: Response) {
     try {
@@ -72,13 +109,44 @@ export default class AuthController {
   }
 
   /**
-   * Authenticates user credentials and creates a new session.
-   * Generates new access and refresh tokens upon successful authentication.
-   * 
-   * @param {Request} req - Express request object with LoginInput body
-   * @param {Response} res - Express response object
-   * @returns {Promise<void>} JSON response with user data and tokens
-   * @throws {Error} If authentication fails or credentials are invalid
+   * @swagger
+   * /api/auth/login:
+   *   post:
+   *     summary: Login user
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - email
+   *               - password
+   *             properties:
+   *               email:
+   *                 type: string
+   *               password:
+   *                 type: string
+   *     responses:
+   *       200:
+   *         description: Login successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 token:
+   *                   type: string
+   *                 user:
+   *                   type: object
+   *                   properties:
+   *                     userId:
+   *                       type: string
+   *                     email:
+   *                       type: string
+   *       401:
+   *         description: Invalid credentials
    */
   async login(req: Request, res: Response) {
     try {

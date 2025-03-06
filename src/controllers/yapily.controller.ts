@@ -6,6 +6,191 @@ import SyncStatusModel from '../models/sync-status.model';
 import { syncTransactions } from '../services/sync.service';
 import { Account } from '../interfaces/yapily.interface';
 
+/**
+ * @swagger
+ * /api/institutions:
+ *   get:
+ *     summary: Get list of supported banking institutions
+ *     tags: [Yapily]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of institutions retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ * 
+ * /api/consent:
+ *   post:
+ *     summary: Initiate bank consent process
+ *     tags: [Yapily]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - institutionId
+ *             properties:
+ *               institutionId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Consent initiated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 consentToken:
+ *                   type: string
+ *                 authorizeUrl:
+ *                   type: string
+ * 
+ * /api/auth/callback:
+ *   get:
+ *     summary: Handle bank authorization callback
+ *     tags: [Yapily]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: consent
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Accounts synced successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 accounts:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Account'
+ * 
+ * /api/accounts:
+ *   get:
+ *     summary: Get user's linked bank accounts
+ *     tags: [Yapily]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of accounts retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Account'
+ * 
+ * /api/accounts/{accountId}/transactions/fetch:
+ *   post:
+ *     summary: Start transaction sync for an account
+ *     tags: [Yapily]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: accountId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - consentToken
+ *             properties:
+ *               consentToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Transaction sync started
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 syncId:
+ *                   type: string
+ *                 statusUrl:
+ *                   type: string
+ * 
+ * /api/accounts/{accountId}/transactions:
+ *   get:
+ *     summary: Get transactions for an account
+ *     tags: [Yapily]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: accountId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: Transactions retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Transaction'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     pages:
+ *                       type: integer
+ */
+
 export default class YapilyController {
 
   async getInstitutions(req: Request, res: Response) {

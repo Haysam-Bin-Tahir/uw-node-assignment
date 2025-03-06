@@ -8,6 +8,9 @@ import yapilyRoutes from './routes/yapily.routes';
 import env from "./config/env";
 import monitorRoutes from './routes/monitor.routes';
 import authRoutes from './routes/auth.routes';
+import swaggerUi from 'swagger-ui-express';
+import type { SwaggerUiOptions } from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
 
 // Extend Express Request type
 interface RequestWithRetry extends Request {
@@ -65,6 +68,16 @@ app.use(
 app.use('/api', yapilyRoutes);
 app.use('/api/monitor', monitorRoutes);
 app.use('/api/auth', authRoutes);
+
+// Configure swagger options
+const swaggerOptions: SwaggerUiOptions = {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "Yapily Integration API Documentation"
+};
+
+// Swagger documentation route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
 
 // Health check can stay at root
 app.get('/health', (req: Request, res: Response) => {
