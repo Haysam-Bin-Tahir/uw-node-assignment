@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import yapilyRoutes from './routes/yapily.routes';
 import env from "./config/env";
 import monitorRoutes from './routes/monitor.routes';
+import authRoutes from './routes/auth.routes';
 
 // Extend Express Request type
 interface RequestWithRetry extends Request {
@@ -63,6 +64,7 @@ app.use(
 // Routes
 app.use('/api', yapilyRoutes);
 app.use('/api/monitor', monitorRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check can stay at root
 app.get('/health', (req: Request, res: Response) => {

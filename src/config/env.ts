@@ -9,7 +9,9 @@ const env = cleanEnv(process.env, {
   YAPILY_CLIENT_ID: str(),
   YAPILY_CLIENT_SECRET: str(),
   YAPILY_API_URL: str({ default: 'https://api.yapily.com' }),
-  YAPILY_CALLBACK_URL: str({ default: 'http://localhost:5000/api/auth/callback' })
+  YAPILY_CALLBACK_URL: str({ default: 'http://localhost:5000/api/auth/callback' }),
+  JWT_SECRET: str(),
+  JWT_REFRESH_SECRET: str()
 });
 
 export default env;

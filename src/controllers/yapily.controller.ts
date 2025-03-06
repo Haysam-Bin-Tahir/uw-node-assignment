@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import YapilyService from '../services/yapily.service';
 import AccountModel from '../models/account.model';
 import TransactionModel from '../models/transaction.model';
-import { Transaction } from '../interfaces/yapily.interface';
 import SyncStatusModel from '../models/sync-status.model';
 import { syncTransactions } from '../services/sync.service';
 

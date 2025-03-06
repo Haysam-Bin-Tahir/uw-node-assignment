@@ -12,7 +12,7 @@
     "deploy": "vercel"
   },
   "keywords": [],
-  "author": "",
+  "author": "Haysam Bin Tahir",
   "license": "ISC",
   "dependencies": {
     "@types/multer": "^1.4.12",
