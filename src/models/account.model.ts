@@ -6,7 +6,7 @@ export interface IAccountDocument extends Omit<Account, 'id'>, Document {
 }
 
 const accountSchema = new Schema({
-  id: { type: String, required: true, unique: true },
+  id: { type: String, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   accountType: { type: String, required: true },
   accountNumber: { type: String, required: true },

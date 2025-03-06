@@ -65,7 +65,7 @@ app.use(
 );
 
 // Routes
-app.use('/api', yapilyRoutes);
+app.use('/api/yapily', yapilyRoutes);
 app.use('/api/monitor', monitorRoutes);
 app.use('/api/auth', authRoutes);
 

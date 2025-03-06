@@ -11,9 +11,11 @@ const transactionSchema = new Schema({
   currency: { type: String, required: true },
   accountId: { type: String, required: true },
   status: { type: String, required: true },
-  reference: { type: String }
+  reference: { type: String },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 
 transactionSchema.index({ accountId: 1, date: -1 });
+transactionSchema.index({ userId: 1, accountId: 1 });
 
 export default mongoose.model<ITransactionDocument>('Transaction', transactionSchema); 

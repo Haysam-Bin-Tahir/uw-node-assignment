@@ -30,14 +30,14 @@ class YapilyService {
     }
   }
 
-  async createConsent(institutionId: string) {
+  async createConsent(institutionId: string, userId: string) {
     try {
       const response = await axios.post(
         `${this.baseUrl}/account-auth-requests`,
         {
-          applicationUserId: "test-user",
+          applicationUserId: userId,
           institutionId,
-          callback: env.YAPILY_CALLBACK_URL,
+          callback: env.YAPILY_CALLBACK_URL
         },
         { headers: this.headers }
       );

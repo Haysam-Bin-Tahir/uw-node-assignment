@@ -19,28 +19,29 @@ export const authenticateToken = async (
   next: NextFunction
 ) => {
   try {
+    console.log("Auth headers:", req.headers.authorization);
     let token = req.headers.authorization?.split(' ')[1];
     
     if (!token) {
-      res.status(401).json({ message: "Access token not found" });
-      return;
+      return res.status(401).json({ message: "Access token not found" });
     }
 
+    console.log("Token to verify:", token);
     const decoded = AuthService.verifyAccessToken(token);
-    const user = await User.findById(Number(decoded.userId));
-    
+    console.log("Decoded token:", decoded);
+
+    const user = await User.findById(decoded.userId);
     if (!user) {
-      res.status(401).json({ message: "User not found" });
-      return;
+      return res.status(401).json({ message: "User not found" });
     }
     
     req.user = user;
     next();
   } catch (error) {
+    console.error("Token verification error:", error);
     if (error instanceof jwt.TokenExpiredError) {
-      res.status(401).json({ message: "Token expired" });
-      return;
+      return res.status(401).json({ message: "Token expired" });
     }
-    res.status(401).json({ message: "Invalid token" });
+    return res.status(401).json({ message: "Invalid token" });
   }
 };

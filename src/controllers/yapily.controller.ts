@@ -32,7 +32,7 @@ export default class YapilyController {
         return res.status(400).json({ error: 'Institution ID is required' });
       }
 
-      const consent = await YapilyService.createConsent(institutionId);
+      const consent = await YapilyService.createConsent(institutionId, req.user!._id.toString());
       res.json(consent);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -42,7 +42,8 @@ export default class YapilyController {
 
   async handleCallback(req: Request, res: Response) {
     try {
-      const { consent } = req.query;
+      const { consent, 'application-user-id': userId } = req.query;
+      
       if (!consent) {
         return res.status(400).json({ message: 'Consent token is required' });
       }
@@ -53,11 +54,10 @@ export default class YapilyController {
         return res.status(400).json({ message: 'No accounts data received' });
       }
 
-      // Store accounts with user reference
       const accounts = await Promise.all(response.data.map((account: Account) => 
         AccountModel.findOneAndUpdate(
-          { id: account.id, userId: req.user!._id },
-          { ...account, userId: req.user!._id },
+          { id: account.id, userId },
+          { ...account, userId },
           { upsert: true, new: true }
         )
       ));
