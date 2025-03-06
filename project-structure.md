@@ -28,6 +28,7 @@ project-root/
 
   - **`config/`**: Holds configuration files for setting up environment variables, db setup and other settings.
   - **`controllers/`**: Contains the logic for handling incoming requests and sending responses.
+  - **`docs/`**: Contains swagger documentation for the API endpoints.
   - **`interfaces/`**: Defines TypeScript interfaces and types used throughout the project.
   - **`middleware/`**: Contains custom middleware functions that can process requests before they reach the route handlers.
   - **`models/`**: Defines Mongoose models representing the data structures used in the application.
@@ -35,6 +36,7 @@ project-root/
   - **`utils/`**: Holds utility functions that can be used across the application.
   - **`app.ts`**: Initializes the Express application and sets up middleware.
   - **`server.ts`**: The main entry point for starting the server.
+  - **`tests/`**: Contains test files for testing the application.
 
 - **`.env`**: A file that contains environment variables used by the application.
 - **`.env.example`**: An example file showing the required environment variables.
