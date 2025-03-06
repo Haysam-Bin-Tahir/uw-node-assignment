@@ -1,34 +1,10 @@
+/**
+ * Monitor Controller
+ * Handles sync status monitoring.
+ */
 import { Request, Response } from 'express';
 import SyncStatusModel from '../models/sync-status.model';
 
-/**
- * @swagger
- * /api/monitor/sync/{syncId}:
- *   get:
- *     summary: Get sync status for a transaction sync operation
- *     tags: [Monitor]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: syncId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Sync status retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SyncStatus'
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: Sync status not found
- *       500:
- *         description: Server error
- */
 export default class MonitorController {
   async getSyncStatus(req: Request, res: Response) {
     try {

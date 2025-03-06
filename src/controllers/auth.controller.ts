@@ -12,7 +12,6 @@ import AuthService from "../services/auth.service";
 import { IUser } from "../models/user.model";
 import ValidationService from "../services/validation.service";
 
-
 const formatUserResponse = (user: IUser) => {
   return {
     userId: user._id.toString(),
@@ -22,53 +21,6 @@ const formatUserResponse = (user: IUser) => {
 };
 
 export default class AuthController {
-  /**
-   * @swagger
-   * /api/auth/register:
-   *   post:
-   *     summary: Register a new user
-   *     tags: [Auth]
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             required:
-   *               - email
-   *               - password
-   *             properties:
-   *               email:
-   *                 type: string
-   *                 format: email
-   *               password:
-   *                 type: string
-   *                 minLength: 6
-   *     responses:
-   *       201:
-   *         description: User registered successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 message:
-   *                   type: string
-   *                 user:
-   *                   type: object
-   *                   properties:
-   *                     userId:
-   *                       type: string
-   *                     email:
-   *                       type: string
-   *                     createdAt:
-   *                       type: string
-   *                       format: date-time
-   *       400:
-   *         description: Invalid input
-   *       409:
-   *         description: Email already exists
-   */
   async register(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
@@ -108,46 +60,6 @@ export default class AuthController {
     }
   }
 
-  /**
-   * @swagger
-   * /api/auth/login:
-   *   post:
-   *     summary: Login user
-   *     tags: [Auth]
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             required:
-   *               - email
-   *               - password
-   *             properties:
-   *               email:
-   *                 type: string
-   *               password:
-   *                 type: string
-   *     responses:
-   *       200:
-   *         description: Login successful
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 token:
-   *                   type: string
-   *                 user:
-   *                   type: object
-   *                   properties:
-   *                     userId:
-   *                       type: string
-   *                     email:
-   *                       type: string
-   *       401:
-   *         description: Invalid credentials
-   */
   async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
@@ -213,15 +125,6 @@ export default class AuthController {
     }
   }
 
-  /**
-   * Refreshes the user's authentication session using a valid refresh token.
-   * Generates new access and refresh tokens if the current refresh token is valid.
-   * 
-   * @param {Request} req - Express request object with refresh token in cookies
-   * @param {Response} res - Express response object
-   * @returns {Promise<void>} JSON response with new tokens and user data
-   * @throws {Error} If refresh token is invalid or user not found
-   */
   async refreshToken(req: Request, res: Response) {
     try {
       const { refreshToken } = req.cookies;
@@ -295,14 +198,6 @@ export default class AuthController {
     }
   }
 
-  /**
-   * Terminates the user's current authentication session.
-   * Clears authentication cookies and removes refresh token from database.
-   * 
-   * @param {Request} req - Express request object with tokens in cookies
-   * @param {Response} res - Express response object
-   * @returns {Promise<void>} JSON response confirming logout
-   */
   async logout(req: Request, res: Response) {
     try {
       const refreshToken = req.cookies.refreshToken;
