@@ -30,7 +30,7 @@ npm install
 ```bash
 cp .env.example .env
 ```
-4. Set up your environment variables in `.env`
+4. Set up your environment variables in `.env` (I have shared a onetimesecret URL with you in Upwork Submission where you can access the content to paste into the .env file -- the link is only accesible once)
 
 ## Running the Application
 
