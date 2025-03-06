@@ -4,6 +4,7 @@ import AccountModel from '../models/account.model';
 import TransactionModel from '../models/transaction.model';
 import SyncStatusModel from '../models/sync-status.model';
 import { syncTransactions } from '../services/sync.service';
+import { Account } from '../interfaces/yapily.interface';
 
 export default class YapilyController {
 
@@ -11,18 +12,12 @@ export default class YapilyController {
     try {
       const institutions = await YapilyService.getInstitutions();
       res.json(institutions);
-    } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'status' in error) {
-        const apiError = error as { status: number; message: string; details?: any };
-        res.status(apiError.status).json({
-          error: apiError.message,
-          details: process.env.NODE_ENV === 'development' ? apiError.details : undefined
-        });
-      } else {
-        res.status(500).json({ 
-          error: 'Internal server error'
-        });
-      }
+    } catch (error) {
+      console.error('Failed to fetch institutions:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch institutions',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 
@@ -45,44 +40,47 @@ export default class YapilyController {
     try {
       const { consent } = req.query;
       if (!consent) {
-        return res.status(400).json({ error: 'Consent token is required' });
+        return res.status(400).json({ message: 'Consent token is required' });
       }
 
       const response = await YapilyService.getAccounts(consent as string);
 
-      // The accounts are in the response.data array
-      if (response?.data) {
-        // Store accounts in database
-        for (const account of response.data) {
-          await AccountModel.findOneAndUpdate(
-            { id: account.id },
-            account,
-            { upsert: true, new: true }
-          );
-        }
-        res.json({ 
-          message: 'Accounts synced successfully',
-          accounts: response.data 
-        });
-      } else {
-        res.status(400).json({ 
-          error: 'No accounts data received',
-          response 
-        });
+      if (!response?.data) {
+        return res.status(400).json({ message: 'No accounts data received' });
       }
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      res.status(500).json({ error: errorMessage });
+
+      // Store accounts with user reference
+      const accounts = await Promise.all(response.data.map((account: Account) => 
+        AccountModel.findOneAndUpdate(
+          { id: account.id, userId: req.user!._id },
+          { ...account, userId: req.user!._id },
+          { upsert: true, new: true }
+        )
+      ));
+
+      res.json({ 
+        message: 'Accounts synced successfully',
+        accounts 
+      });
+    } catch (error) {
+      console.error('Failed to handle callback:', error);
+      res.status(500).json({ 
+        message: 'Failed to sync accounts',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 
   async getAccounts(req: Request, res: Response) {
     try {
-      const accounts = await AccountModel.find();
+      const accounts = await AccountModel.find({ userId: req.user!._id });
       res.json(accounts);
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      res.status(500).json({ error: errorMessage });
+    } catch (error) {
+      console.error('Failed to fetch accounts:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch accounts',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 
@@ -92,27 +90,41 @@ export default class YapilyController {
       const { consentToken } = req.body;
 
       if (!consentToken) {
-        return res.status(400).json({ error: 'Consent token is required' });
+        return res.status(400).json({ message: 'Consent token is required' });
+      }
+
+      // Verify account belongs to user
+      const account = await AccountModel.findOne({ 
+        id: accountId, 
+        userId: req.user!._id 
+      });
+
+      if (!account) {
+        return res.status(404).json({ message: 'Account not found' });
       }
 
       const syncStatus = await SyncStatusModel.create({
         accountId,
+        userId: req.user!._id,
         status: 'pending',
         progress: 0
       });
 
-      // Use the service function directly
-      syncTransactions(accountId, consentToken, syncStatus._id.toString()).catch(console.error);
+      // Start sync process
+      syncTransactions(accountId, consentToken, syncStatus._id.toString(), req.user!._id)
+        .catch(console.error);
 
       res.json({ 
         message: 'Transaction sync started',
         syncId: syncStatus._id,
         statusUrl: `/api/monitor/sync/${syncStatus._id}`
       });
-
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      res.status(500).json({ error: errorMessage });
+    } catch (error) {
+      console.error('Failed to fetch transactions:', error);
+      res.status(500).json({ 
+        message: 'Failed to start transaction sync',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 
@@ -123,24 +135,33 @@ export default class YapilyController {
       const limit = parseInt(req.query.limit as string) || 10;
       const skip = (page - 1) * limit;
 
-      // Get total count for pagination
-      const total = await TransactionModel.countDocuments({ accountId });
+      // Verify account belongs to user
+      const account = await AccountModel.findOne({ 
+        id: accountId, 
+        userId: req.user!._id 
+      });
 
-      // Get paginated transactions
-      const transactions = await TransactionModel.find({ accountId })
+      if (!account) {
+        return res.status(404).json({ message: 'Account not found' });
+      }
+
+      const total = await TransactionModel.countDocuments({ 
+        accountId,
+        userId: req.user!._id 
+      });
+
+      const transactions = await TransactionModel
+        .find({ accountId, userId: req.user!._id })
         .sort({ date: -1 })
         .skip(skip)
         .limit(limit)
         .lean();
 
-      // Transform the amount field
-      const transformedTransactions = transactions.map(transaction => ({
-        ...transaction,
-        amount: parseFloat(transaction.amount.toString())
-      }));
-
       res.json({
-        data: transformedTransactions,
+        data: transactions.map(t => ({
+          ...t,
+          amount: parseFloat(t.amount.toString())
+        })),
         pagination: {
           total,
           page,
@@ -148,9 +169,12 @@ export default class YapilyController {
           pages: Math.ceil(total / limit)
         }
       });
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      res.status(500).json({ error: errorMessage });
+    } catch (error) {
+      console.error('Failed to get transactions:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch transactions',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 

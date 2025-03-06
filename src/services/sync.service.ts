@@ -2,8 +2,14 @@ import { Transaction } from '../interfaces/yapily.interface';
 import TransactionModel from '../models/transaction.model';
 import SyncStatusModel from '../models/sync-status.model';
 import YapilyService from './yapily.service';
+import mongoose from 'mongoose';
 
-export const syncTransactions = async (accountId: string, consentToken: string, syncId: string) => {
+export const syncTransactions = async (
+  accountId: string, 
+  consentToken: string, 
+  syncId: string,
+  userId: mongoose.Types.ObjectId
+) => {
   const BATCH_SIZE = 100;
   const syncStatus = await SyncStatusModel.findById(syncId);
   
@@ -28,16 +34,13 @@ export const syncTransactions = async (accountId: string, consentToken: string, 
         const bulkOps = chunk.map((transaction: Transaction) => ({
           updateOne: {
             filter: { id: transaction.id },
-            update: { $set: { ...transaction, accountId } },
+            update: { $set: { ...transaction, accountId, userId } },
             upsert: true
           }
         }));
 
-        await TransactionModel.bulkWrite(bulkOps, { 
-          ordered: false,
-          writeConcern: { w: 0 }
-        });
-
+        await TransactionModel.bulkWrite(bulkOps);
+        
         syncStatus.progress = Math.min(i + BATCH_SIZE, transactions.length);
         await syncStatus.save();
       }

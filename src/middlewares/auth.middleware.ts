@@ -1,34 +1,46 @@
-import { Request, Response, NextFunction } from 'express';
-import { AuthService } from '../services/auth.service';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import User from "../models/user.model";
+import { IUser } from "../models/user.model";
+import AuthService from "../services/auth.service";
 
+// Extend Express Request type to include user
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        userId: string;
-        email: string;
-      };
+      user?: IUser;
     }
   }
 }
 
-export const authenticate = async (
+export const authenticateToken = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'No token provided' });
+    let token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+      res.status(401).json({ message: "Access token not found" });
+      return;
     }
 
-    const token = authHeader.split(' ')[1];
-    const payload = AuthService.verifyAccessToken(token);
-
-    req.user = payload;
+    const decoded = AuthService.verifyAccessToken(token);
+    const user = await User.findById(Number(decoded.userId));
+    
+    if (!user) {
+      res.status(401).json({ message: "User not found" });
+      return;
+    }
+    
+    req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Invalid token' });
+    if (error instanceof jwt.TokenExpiredError) {
+      res.status(401).json({ message: "Token expired" });
+      return;
+    }
+    res.status(401).json({ message: "Invalid token" });
   }
-}; 
+};
